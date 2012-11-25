@@ -6,6 +6,19 @@ var redisStore = require('./remotestorage-redisStore');
 describe('RedisStore', function() {
   var store = redisStore(remotestorage);
 
+  var json = {
+    mimeType: 'application/json',
+    data: {
+      test: 'node'
+    }
+  };
+  var string = {
+    data: 'test'
+  };
+  var binary = {
+    data: Arraybuffer(32)
+  };
+
   it('replaces the storageAdapter of the remotestorage', function() {
     remotestorage.storageAdapter.get().should.equal(store);
   });
@@ -29,11 +42,11 @@ describe('RedisStore', function() {
   });
 
   describe('#set() #get()', function() {
-    it('sets and gets the right value', function(done) {
-      store.set('path/', {test: 'node'}).then(getValue);
+    it('sets and gets objects', function(done) {
+      store.set('path/', json).then(getValue);
       function getValue() {
         store.get('path/').then(function(node) {
-          node.test.should.equal('node');
+          node.data.test.should.equal('node');
           done();
         });
       }
@@ -63,8 +76,8 @@ describe('RedisStore', function() {
       store.forgetAll().then.should.be.a('function');
     });
     it('empties the storage', function(done) {
-      store.set('one/', {test: 'value'}).then(function() {
-        store.set('two/', {test: 'value'}).then(forget);
+      store.set('one/', json).then(function() {
+        store.set('two/', json).then(forget);
       });
       function forget() {
         store.forgetAll().then(checkFirstValue);
@@ -73,9 +86,9 @@ describe('RedisStore', function() {
         store.get('one/').then(checkSecondValue);
       }
       function checkSecondValue(node) {
-          node.should.not.have.property('test');
+          node.should.not.have.property('data');
         store.get('two/').then(function(node) {
-          node.should.not.have.property('test');
+          node.should.not.have.property('data');
           done();
         });
       }
