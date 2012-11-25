@@ -36,9 +36,8 @@ RedisStore.prototype = {
   set: function(path, node) {
     var promise = this.getPromise();
     redis.set(this.path(path), node, this.bind(function(err) {
-      if (err) console.log('SET Error:', err, res);
-      console.log(res)
-      this.emit('change', {path: path, oldValue: 'bla'});
+      if (err) console.log('SET Error:', err);
+      this.emit('change', {path: path});
       promise.fulfillLater();
     }));
     return promise;
