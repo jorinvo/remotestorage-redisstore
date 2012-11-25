@@ -1,91 +1,100 @@
-if(typeof(define) !== 'function') {
-  var define = require('amdefine')(module);
-}
+var should = require('should');
+var remotestorage = require('./lib/remotestorage-node-debug');
+var RedisStore = require('./remotestorage-redisStore');
 
-define(['requirejs', 'fs'], function(requirejs, fs) {
-  var suites = [];
 
-  var curry = null;
+describe('RedisStore', function() {
+  var store = new RedisStore(remotestorage);
 
-  suites.push({
-    name: "store/memory.js tests",
-    desc: "in-memory StorageAdapter",
-    setup: function(env) {
-      var _this = this;
-      requirejs([
-        './src/lib/util',
-        './src/lib/store/memory'
-      ], function(util, memoryAdapter) {
-        curry = util.curry;
-        env.memory = memoryAdapter();
-        _this.result(true);
-      });
-    },
-    takedown: function(env) {
-      this.result(true);
-    },
-    beforeEach: function(env) {
-      var _this = this;
-      env.memory.forgetAll().
-        then(function() {
-          _this.result(true);
-        });
-    },
-    tests: [
-      {
-        desc: "all methods return promises",
-        run: function(env) {
-          this.assertTypeAnd(
-            env.memory.get('/foo').then, 'function'
-          );
-          this.assertTypeAnd(
-            env.memory.set('/foo', { data: 'bar' }).then, 'function'
-          );
-          this.assertTypeAnd(
-            env.memory.remove('/foo').then, 'function'
-          );
-          this.assertType(
-            env.memory.forgetAll().then, 'function'
-          );
-        }
-      },
-      {
-        desc: "results are consistent",
-        run: function(env) {
-
-          var _this = this;
-
-          function assertAnd(a) {
-            return curry(_this.assertAnd.bind(_this), a);
-          }
-
-          env.memory.
-            // set
-            set('/one-path', 'data').
-            // get
-            then(curry(env.memory.get, '/one-path')).
-            then(assertAnd('data')).
-            then(curry(env.memory.get, '/other-path')).
-            then(assertAnd(undefined)).
-            // remove
-            then(curry(env.memory.remove, '/one-path')).
-            then(curry(env.memory.get, '/one-path')).
-            then(assertAnd(undefined)).
-            // forgetAll
-            then(curry(env.memory.set, '/a', 1)).
-            then(curry(env.memory.set, '/b', 2)).
-            then(env.memory.forgetAll).
-            then(curry(env.memory.get, '/a')).
-            then(assertAnd(undefined)).
-            then(curry(env.memory.get, '/b')).
-            then(assertAnd(undefined)).
-            // final result
-            then(curry(this.result.bind(this), true),   // success
-                 curry(this.result.bind(this), false)); // error
-        }
-      }
-    ]
+  it('replaces the storageAdapter of the remotestorage', function(done) {
+    remotestorage.storageAdapter.get().should.equal(store);
   });
 
-  return suites;
+  describe('#get()', function() {
+    it('takes a path as argument', function() {
+      store.get.should.throw();
+    });
+    it('returns a promise', function() {
+      store.get('path').then.should.be.a('function');
+    });
+  });
+
+  describe('#set()', function() {
+    it('takes a path and a node as argument', function() {
+      store.set.should.throw();
+    });
+    it('returns a promise', function() {
+      store.set('path', 'node').then.should.be.a('function');
+    });
+  });
+
+  describe('#set() #get()', function() {
+    it('sets and gets the right value', function(done) {
+      store.set('path', 'node').then(getValue);
+      function getValue() {
+        store.get('path').then(function(node) {
+          node.should.equal('node');
+          done();
+        });
+      }
+    });
+  });
+
+  describe('#remove()', function() {
+    it('returns a promise', function() {
+      store.remove('path').then.should.be.a('function');
+    });
+    it('removes the node at the given path', function(done) {
+      store.set('path', 'node').then(removeNode);
+      function removeNode() {
+        store.remove('path').then(checkValue);
+      }
+      function checkValue() {
+        store.get('path').then(function(node) {
+          node.should.not.equal('node');
+          done();
+        });
+      }
+    });
+  });
+
+  describe('#forgetAll()', function() {
+    it('returns a promise', function() {
+      store.forgetAll().then.should.be.a('function');
+    });
+    it('empties the storage', function(done) {
+      store.set('one', 'value').then(function() {
+        store.set('two', 'value').then(forget);
+      });
+      function forget() {
+        store.forgetAll().then(checkFirstValue);
+      }
+      function checkFirstValue() {
+        store.get('one').then(checkSecondValue);
+      }
+      function checkSecondValue(node) {
+        node.should.be.equal(undefined);
+        store.get('two').then(function(node) {
+          node.should.be.equal(undefined);
+          done();
+        });
+      }
+    });
+  });
+
+  describe('#on()', function() {
+    it('supports a change event', function(done) {
+      store.on('change', done);
+      store.set('trigger', 'change');
+    });
+    it('is called with a event object which has a path and an oldValue property', function(done) {
+      store.on('change', function(event) {
+        should.exist(event);
+        event.should.have.property('path');
+        event.should.have.property('oldValue');
+        done();
+      });
+      store.set('trigger', 'change');
+    });
+  });
 });
