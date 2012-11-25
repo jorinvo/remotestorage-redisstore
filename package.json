@@ -26,6 +26,6 @@
     "redis": "0.8.x"
   },
   "scripts": {
-    "test": "node_modules/mocha... test.js"
+    "test": "node_modules/mocha/bin/mocha test.js"
   }
 }
