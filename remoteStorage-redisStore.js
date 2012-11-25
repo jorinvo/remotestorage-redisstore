@@ -11,9 +11,14 @@ redis.on("error", function (err) {
 function RedisStore(rs) {
   rs.util.extend(this, rs.util.getEventEmitter('change'));
   this.getPromise = rs.util.getPromise;
+  this.asyncEach = rs.util.asyncEach;
+  this.bind = function(fn) {
+    return rs.util.bind(fn, this);
+  };
   this.prefix = crypto.randomBytes(6).toString() + '.';
 
   rs.storageAdapter.set(this);
+  console.log('INFO: found redis storage');
 }
 
 
@@ -30,10 +35,11 @@ RedisStore.prototype = {
 
   set: function(path, node) {
     var promise = this.getPromise();
-    redis.set(this.path(path), node, function(err) {
+    redis.set(this.path(path), node, this.bind(function(err) {
       if (err) console.log('SET Error:', err);
+      this.emit('change', {path: 'path/', oldValue: 'oldValue'});
       promise.fulfillLater();
-    });
+    }));
     return promise;
   },
 
@@ -48,16 +54,17 @@ RedisStore.prototype = {
 
   forgetAll: function() {
     var promise = this.getPromise();
-    redis.keys(this.prefix + '*', function(err, res) {
+    redis.keys(this.prefix + '*', this.bind(function(err, res) {
       if (err) console.log('KEYS Error:', err);
-      res.forEach(deleteKey);
+      this.asyncEach(res, deleteKey).then(function() {
+        promise.fulfill();
+      });
       function deleteKey(key) {
         redis.del(key, function(err) {
           if (err) console.log('DEL Error:', err);
-            promise.fulfillLater();
         });
       }
-    });
+    }));
     return promise;
   },
 
