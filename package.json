@@ -1,8 +1,8 @@
 {
-  "name": "remoteStorage-redisStore",
+  "name": "remotestorage-redisstore",
   "description": "",
   "version": "0.1.0",
-  "homepage": "http://github.com/jorin-vogel/remoteStorage-redisStore",
+  "homepage": "http://github.com/jorin-vogel/remotestorage-redisstore",
   "author": {
     "name": "Jorin Vogel",
     "email": "mail@jorin-vogel.com",
@@ -11,10 +11,10 @@
   "license": "GPL",
   "repository": {
     "type": "git",
-    "url": "git://github.com/jorin-vogel/remoteStorage-redisStore.git"
+    "url": "git://github.com/jorin-vogel/remotestorage-redisstore.git"
   },
 
-  "main": "./remoteStorage-redisStore.js",
+  "main": "./remotestorage-redisstore.js",
   "engines": {
     "node": ">=0.4.0"
   },
