@@ -1,0 +1,31 @@
+{
+  "name": "remoteStorage-redisStore",
+  "description": "",
+  "version": "0.1.0",
+  "homepage": "http://github.com/jorin-vogel/remoteStorage-redisStore",
+  "author": {
+    "name": "Jorin Vogel",
+    "email": "mail@jorin-vogel.com",
+    "url": "http://jorin-vogel.com"
+  },
+  "license": "GPL",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jorin-vogel/remoteStorage-redisStore.git"
+  },
+
+  "main": "./remoteStorage-redisStore.js",
+  "engines": {
+    "node": ">=0.4.0"
+  },
+  "devDependencies": {
+    "mocha": "1.7.x"
+  },
+  "dependencies": {
+    "hiredis": "0.1.x",
+    "redis": "0.8.x"
+  },
+  "scripts": {
+    "test": "node_modules/mocha... test.js"
+  }
+}
