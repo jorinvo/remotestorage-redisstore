@@ -30,10 +30,10 @@ describe('RedisStore', function() {
 
   describe('#set() #get()', function() {
     it('sets and gets the right value', function(done) {
-      store.set('path/', 'node').then(getValue);
+      store.set('path/', {test: 'node'}).then(getValue);
       function getValue() {
         store.get('path/').then(function(node) {
-          node.should.equal('node');
+          node.test.should.equal('node');
           done();
         });
       }
@@ -45,13 +45,13 @@ describe('RedisStore', function() {
       store.remove('path/').then.should.be.a('function');
     });
     it('removes the node at the given path', function(done) {
-      store.set('path/', 'node').then(removeNode);
+      store.set('path/', {test: 'node'}).then(removeNode);
       function removeNode() {
         store.remove('path/').then(checkValue);
       }
       function checkValue() {
         store.get('path/').then(function(node) {
-          should.not.exist(node);
+          node.should.not.have.property('test');
           done();
         });
       }
@@ -63,8 +63,8 @@ describe('RedisStore', function() {
       store.forgetAll().then.should.be.a('function');
     });
     it('empties the storage', function(done) {
-      store.set('one/', 'value').then(function() {
-        store.set('two/', 'value').then(forget);
+      store.set('one/', {test: 'value'}).then(function() {
+        store.set('two/', {test: 'value'}).then(forget);
       });
       function forget() {
         store.forgetAll().then(checkFirstValue);
@@ -73,9 +73,9 @@ describe('RedisStore', function() {
         store.get('one/').then(checkSecondValue);
       }
       function checkSecondValue(node) {
-        should.not.exist(node);
+          node.should.not.have.property('test');
         store.get('two/').then(function(node) {
-          should.not.exist(node);
+          node.should.not.have.property('test');
           done();
         });
       }
