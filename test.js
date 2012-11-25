@@ -1,10 +1,10 @@
 var should = require('should');
 var remotestorage = require('./lib/remotestorage-node-debug');
-var RedisStore = require('./remotestorage-redisStore');
+var redisStore = require('./remotestorage-redisStore');
 
 
 describe('RedisStore', function() {
-  var store = new RedisStore(remotestorage);
+  var store = redisStore(remotestorage);
 
   it('replaces the storageAdapter of the remotestorage', function() {
     remotestorage.storageAdapter.get().should.equal(store);

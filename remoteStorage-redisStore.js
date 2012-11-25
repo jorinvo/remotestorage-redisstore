@@ -77,4 +77,6 @@ RedisStore.prototype = {
 };
 
 
-module.exports = RedisStore;
+module.exports = function(remotestorage) {
+  return new RedisStore(remotestorage);
+};
