@@ -16,7 +16,7 @@ describe('RedisStore', function() {
     data: 'test'
   };
   var binary = {
-    data: Arraybuffer(32)
+    data: new ArrayBuffer(32)
   };
 
   it('replaces the storageAdapter of the remotestorage', function() {
@@ -41,16 +41,34 @@ describe('RedisStore', function() {
     });
   });
 
-  describe('#set() #get()', function() {
-    it('sets and gets objects', function(done) {
-      store.set('path/', json).then(getValue);
-      function getValue() {
-        store.get('path/').then(function(node) {
-          node.data.test.should.equal('node');
-          done();
-        });
-      }
-    });
+  it('stores objects', function(done) {
+    store.set('path/', json).then(getValue);
+    function getValue() {
+      store.get('path/').then(function(node) {
+        node.data.should.eql(json.data);
+        done();
+      });
+    }
+  });
+
+  it('stores strings', function(done) {
+    store.set('path/', string).then(getValue);
+    function getValue() {
+      store.get('path/').then(function(node) {
+        node.data.should.eql(string.data);
+        done();
+      });
+    }
+  });
+
+  it('stores binary data', function(done) {
+    store.set('path/', binary).then(getValue);
+    function getValue() {
+      store.get('path/').then(function(node) {
+        node.data.should.eql(binary.data);
+        done();
+      });
+    }
   });
 
   describe('#remove()', function() {
