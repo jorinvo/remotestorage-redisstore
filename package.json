@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "hiredis": "0.1.x",
-    "redis": "0.8.x"
+    "redis-url": "0.1.x"
   },
   "scripts": {
     "test": "node_modules/mocha/bin/mocha test.js"
