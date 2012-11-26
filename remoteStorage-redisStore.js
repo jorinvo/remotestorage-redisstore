@@ -20,57 +20,83 @@ function RedisStore(rs, redisUrl) {
   this.client.on("error", function (err) {
     console.log("Error " + err);
   });
-
 }
 
 
 RedisStore.prototype = {
 
   get: function(path) {
-    var promise = this.util.getPromise();
-    this.client.get(this.path(path), this.bind(function(err, res) {
-      if (err) console.log('GET Error:', err);
-      promise.fulfillLater(this.unpackData(res));
-    },this));
-    return promise;
+    return this.promise(function(promise) {
+      this.client.get(this.path(path), this.bind(function(err, res) {
+        if (err) {
+          console.log('GET Error:', err);
+          promise.fail(err);
+          return;
+        }
+        promise.fulfill(this.unpackData(res));
+      },this));
+    });
   },
 
   set: function(path, node) {
-    var promise = this.util.getPromise();
-    this.client.set(this.path(path), this.packData(node), this.bind(function(err) {
-      if (err) console.log('SET Error:', err);
-      this.emit('change', {path: path});
-      promise.fulfillLater();
-    }));
-    return promise;
+    return this.promise(function(promise) {
+      this.client.set(this.path(path), this.packData(node), this.bind(function(err) {
+        if (err) {
+          console.log('SET Error:', err);
+          promise.fail(err);
+          return;
+        }
+        this.emit('change', {path: path});
+        promise.fulfill();
+      }));
+    });
   },
 
   remove: function(path) {
-    var promise = this.util.getPromise();
-    this.client.del(this.path(path), function(err) {
-      if (err) console.log('DEL Error:', err);
-      promise.fulfillLater();
+    return this.promise(function(promise) {
+      this.client.del(this.path(path), function(err) {
+        if (err) {
+          console.log('DEL Error:', err);
+          promise.fail(err);
+          return;
+        }
+        promise.fulfill();
+      });
     });
-    return promise;
   },
 
   forgetAll: function() {
-    var promise = this.util.getPromise();
-    this.client.keys(this.prefix + '*', this.bind(function(err, res) {
-      if (err) console.log('KEYS Error:', err);
-      this.util.asyncEach(res, this.bind(deleteKey)).then(function() {
-        promise.fulfill();
-      });
-    }));
-    function deleteKey(key) {
-      this.client.del(key, function(err) {
-        if (err) console.log('DEL Error:', err);
-      });
-    }
-    return promise;
+    return this.promise(function(promise) {
+     this.client.keys(this.prefix + '*', this.bind(function(err, res) {
+        if (err) {
+          console.log('KEYS Error:', err);
+          promise.fail(err);
+          return;
+        }
+        this.util.asyncEach(res, this.bind(deleteKey)).then(function() {
+          promise.fulfill();
+        });
+      }));
+      function deleteKey(key) {
+        return this.promise(function(promise) {
+          this.client.del(key, function(err) {
+            if (err) {
+              console.log('DEL Error:', err);
+              promise.fail(err);
+              return;
+            }
+            promise.fulfill();
+          });
+        });
+      }
+    });
   },
 
   //private
+
+  promise: function(fn) {
+    return this.util.makePromise(this.bind(fn));
+  },
 
   path: function(path) {
     return this.prefix + path;
