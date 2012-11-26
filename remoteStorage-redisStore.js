@@ -13,7 +13,7 @@ function RedisStore(rs, redisUrl) {
   };
   this.prefix = crypto.randomBytes(6).toString() + '.';
 
-  rs.storageAdapter.set(this);
+  rs.store.setAdapter(this);
   console.log('INFO: found redis storage');
 
   this.client = redis.connect(redisUrl);

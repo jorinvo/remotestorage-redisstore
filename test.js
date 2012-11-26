@@ -20,7 +20,7 @@ describe('RedisStore', function() {
   };
 
   it('replaces the storageAdapter of the remotestorage', function() {
-    remotestorage.storageAdapter.get().should.equal(store);
+    remotestorage.store.getAdapter().should.equal(store);
   });
 
   describe('#get()', function() {
