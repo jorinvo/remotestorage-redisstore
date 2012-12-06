@@ -34,7 +34,7 @@ RedisStore.prototype = {
           return;
         }
         promise.fulfill(this.unpackData(res));
-      },this));
+      }));
     });
   },
 
