@@ -14,7 +14,7 @@
     "url": "git://github.com/jorin-vogel/remotestorage-redisstore.git"
   },
 
-  "main": "./remotestorage-redisstore.js",
+  "main": "remotestorage-redisstore",
   "engines": {
     "node": ">=0.4.0"
   },
