@@ -95,7 +95,7 @@ RedisStore.prototype = {
   //private
 
   promise: function(fn) {
-    return this.util.makePromise(this.bind(fn));
+    return this.util.getPromise(this.bind(fn));
   },
 
   path: function(path) {

@@ -1,7 +1,7 @@
 {
   "name": "remotestorage-redisstore",
   "description": "",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "homepage": "http://github.com/jorin-vogel/remotestorage-redisstore",
   "author": {
     "name": "Jorin Vogel",
@@ -27,6 +27,6 @@
     "redis-url": "0.1.x"
   },
   "scripts": {
-    "test": "node_modules/mocha/bin/mocha test.js"
+    "test": "node_modules/mocha/bin/mocha -R spec test.js"
   }
 }
