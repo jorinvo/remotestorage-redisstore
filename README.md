@@ -2,8 +2,8 @@
 This storage adapter is intended to replace the default in-memory storage when using remotestorage.js with node.js.
 
 #Usage
-* Add `remotestorage-redisstore` to your `package.json`-file: `"remotestorage-redisstore": "0.1.x"`
-* Run `npm install`
+* Run `npm install --save remotestorage-redisstore`
+* make sure you have [redis](//redis.io) running
 
 ###Use it in your code as in the following example:###
 ```javascript
